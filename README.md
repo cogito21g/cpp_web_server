@@ -58,6 +58,15 @@ Replace 8080 with any port number you prefer.
 
 ## Project Structure
 
+```
+cpp-simple-web-server/
+├── CMakeLists.txt
+├── LICENSE
+├── README.md
+└── src/
+    └── main.cpp
+```
+
 ## Future Work
 - Implement full HTTP protocol support.
 - Add thread pool for better concurrency handling.
