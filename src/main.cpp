@@ -1,4 +1,3 @@
-// src/main.cpp
 #include <boost/asio.hpp>
 #include <iostream>
 #include <fstream>
@@ -8,6 +7,9 @@ using boost::asio::ip::tcp;
 
 std::string read_file(const std::string& path) {
     std::ifstream file(path);
+    if (!file.is_open()) {
+        return "";
+    }
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
@@ -26,7 +28,7 @@ std::string handle_request(const std::string& request) {
             uri = "/index.html";
         }
 
-        std::string file_path = "." + uri;
+        std::string file_path = "www" + uri;
         std::string file_content = read_file(file_path);
 
         if (!file_content.empty()) {
