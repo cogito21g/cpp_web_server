@@ -1,8 +1,43 @@
 // src/main.cpp
 #include <boost/asio.hpp>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 using boost::asio::ip::tcp;
+
+std::string read_file(const std::string& path) {
+    std::ifstream file(path);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+std::string handle_request(const std::string& request) {
+    std::istringstream request_stream(request);
+    std::string method;
+    std::string uri;
+    std::string version;
+
+    request_stream >> method >> uri >> version;
+
+    if (method == "GET") {
+        if (uri == "/") {
+            uri = "/index.html";
+        }
+
+        std::string file_path = "." + uri;
+        std::string file_content = read_file(file_path);
+
+        if (!file_content.empty()) {
+            return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + file_content;
+        } else {
+            return "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>";
+        }
+    }
+
+    return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html><body><h1>400 Bad Request</h1></body></html>";
+}
 
 void session(tcp::socket sock) {
     try {
@@ -15,7 +50,12 @@ void session(tcp::socket sock) {
             else if (error)
                 throw boost::system::system_error(error); // Some other error.
 
-            boost::asio::write(sock, boost::asio::buffer(data, length));
+            std::string request(data, length);
+            std::string response = handle_request(request);
+
+            boost::asio::write(sock, boost::asio::buffer(response), error);
+            if (error)
+                throw boost::system::system_error(error);
         }
     } catch (std::exception& e) {
         std::cerr << "Exception in thread: " << e.what() << "\n";

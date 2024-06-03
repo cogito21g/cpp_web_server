@@ -63,8 +63,9 @@ cpp-simple-web-server/
 ├── CMakeLists.txt
 ├── LICENSE
 ├── README.md
-└── src/
-    └── main.cpp
+├── src/
+│   ├── main.cpp
+│   └── index.html
 ```
 
 ## Future Work
